@@ -43,3 +43,7 @@ Then, perform the following steps:
 * Change 'baseurl' in config.php
 * Reconfigure the Postfix instance
 
+# Usage
+
+Point your browser to https://<your-docker-server>. The default credentials remain the same: admin@admin.test / admin.
+To use MISP, refer to the official documentation: https://github.com/MISP/MISP/blob/2.4/INSTALL/documentation.pdf

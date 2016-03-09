@@ -115,6 +115,13 @@ RUN apt-get install -y php5-redis
 # add the following line
 RUN echo "extension=redis.so" >> /etc/php5/apache2/php.ini
 
+# Set the recommended PHP defaults for MISP
+RUN \
+  sed -i -E "s/^max_execution_time.*$/max_execution_time = 300/" /etc/php5/apache2/php.ini && \
+  sed -i -E "s/^memory_limit.*$/memory_limit = 512M/" /etc/php5/apache2/php.ini && \
+  sed -i -E "s/^upload_max_filesize.*$/upload_max_filesize = 50M/" /etc/php5/apache2/php.ini && \
+  sed -i -E "s/^post_max_size.*$/post_max_size = 50M/" /etc/php5/apache2/php.ini 
+
 # To use the scheduler worker for scheduled tasks, do the following
 RUN cp -fa /var/www/MISP/INSTALL/setup/config.php /var/www/MISP/app/Plugin/CakeResque/Config/config.php
 

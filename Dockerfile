@@ -40,8 +40,11 @@ ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 # Preconfigure setting for packages
 RUN echo "mysql-server mysql-server/root_password password $MYSQL_ROOT_PASSWORD" | debconf-set-selections
 RUN echo "mysql-server mysql-server/root_password_again password $MYSQL_ROOT_PASSWORD" | debconf-set-selections
-RUN echo "postfix postfix/main_mailer_type string Local only" | debconf-set-selections 
-RUN echo "postfix postfix/mailname string localhost.localdomain" | debconf-set-selections
+# Don't forget to reconfigure your postfix to match your env!
+#RUN echo "postfix postfix/main_mailer_type string Local only" | debconf-set-selections 
+#RUN echo "postfix postfix/mailname string localhost.localdomain" | debconf-set-selections
+RUN echo 'postfix postfix/relayhost string smart.relay.tld.com' | debconf-set-selections
+RUN echo 'postfix postfix/mynetworks string "127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 192.168.0.0/16 172.16.0.0/12 10.0.0.0/8"' | debconf-set-selections
 
 # Install packages
 RUN \ 

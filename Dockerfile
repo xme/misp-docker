@@ -113,7 +113,8 @@ RUN apt-get install -y php5-redis
 
 # After installing it, enable it in your php.ini file
 # add the following line
-RUN echo "extension=redis.so" >> /etc/php5/apache2/php.ini
+# DISABLED: Module already enabled by the package php5-redis (generates crontab errors)
+#RUN echo "extension=redis.so" >> /etc/php5/apache2/php.ini
 
 # Set the recommended PHP defaults for MISP
 RUN \

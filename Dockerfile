@@ -18,6 +18,7 @@ MAINTAINER Xavier Mertens <xavier@rootshell.be>
 ENV DEBIAN_FRONTEND noninteractive
 ARG MYSQL_ROOT_PASSWORD
 
+RUN echo "DEBUG"
 # Upgrade Ubuntu
 RUN \
   apt-get update && \
@@ -40,11 +41,8 @@ ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 # Preconfigure setting for packages
 RUN echo "mysql-server mysql-server/root_password password $MYSQL_ROOT_PASSWORD" | debconf-set-selections
 RUN echo "mysql-server mysql-server/root_password_again password $MYSQL_ROOT_PASSWORD" | debconf-set-selections
-# Don't forget to reconfigure your postfix to match your env!
 #RUN echo "postfix postfix/main_mailer_type string Local only" | debconf-set-selections 
 #RUN echo "postfix postfix/mailname string localhost.localdomain" | debconf-set-selections
-RUN echo 'postfix postfix/relayhost string smart.relay.tld.com' | debconf-set-selections
-RUN echo 'postfix postfix/mynetworks string "127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 192.168.0.0/16 172.16.0.0/12 10.0.0.0/8"' | debconf-set-selections
 
 # Install packages
 RUN \ 
@@ -113,15 +111,7 @@ RUN apt-get install -y php5-redis
 
 # After installing it, enable it in your php.ini file
 # add the following line
-# DISABLED: Module already enabled by the package php5-redis (generates crontab errors)
-#RUN echo "extension=redis.so" >> /etc/php5/apache2/php.ini
-
-# Set the recommended PHP defaults for MISP
-RUN \
-  sed -i -E "s/^max_execution_time.*$/max_execution_time = 300/" /etc/php5/apache2/php.ini && \
-  sed -i -E "s/^memory_limit.*$/memory_limit = 512M/" /etc/php5/apache2/php.ini && \
-  sed -i -E "s/^upload_max_filesize.*$/upload_max_filesize = 50M/" /etc/php5/apache2/php.ini && \
-  sed -i -E "s/^post_max_size.*$/post_max_size = 50M/" /etc/php5/apache2/php.ini 
+RUN echo "extension=redis.so" >> /etc/php5/apache2/php.ini
 
 # To use the scheduler worker for scheduled tasks, do the following
 RUN cp -fa /var/www/MISP/INSTALL/setup/config.php /var/www/MISP/app/Plugin/CakeResque/Config/config.php
@@ -191,6 +181,16 @@ RUN \
   cd /var/www/MISP/app/Config && \
   sed -i -E "s/'salt'\s=>\s'(\S+)'/'salt' => '`openssl rand -base64 32|tr "/" "-"`'/" config.php
 
+# ------------------------------------
+# Install MISP Modules (New in 2.4.28)
+# ------------------------------------
+RUN \
+  cd /opt && \
+  apt-get install -y python3 python3-pip && \
+  git clone https://github.com/MISP/misp-modules.git && \
+  cd misp-modules && \
+  pip3 install -r REQUIREMENTS
+
 # -----------------
 # Supervisord Setup
 # -----------------
@@ -227,6 +227,14 @@ RUN \
   echo '[program:resque]' >> /etc/supervisor/conf.d/supervisord.conf && \
   echo 'command=/bin/bash /var/www/MISP/app/Console/worker/start.sh' >> /etc/supervisor/conf.d/supervisord.conf && \
   echo 'user = www-data' >> /etc/supervisor/conf.d/supervisord.conf && \
+  echo 'startsecs = 0' >> /etc/supervisor/conf.d/supervisord.conf && \
+  echo 'autorestart = false' >> /etc/supervisor/conf.d/supervisord.conf
+
+RUN \
+  echo '' >> /etc/supervisor/conf.d/supervisord.conf && \
+  echo '[program:misp-modules]' >> /etc/supervisor/conf.d/supervisord.conf && \
+  echo 'command=/bin/bash -c "cd /opt/misp-modules/bin && /usr/bin/python3 misp-modules.py"' >> /etc/supervisor/conf.d/supervisord.conf && \
+  echo 'user = root' >> /etc/supervisor/conf.d/supervisord.conf && \
   echo 'startsecs = 0' >> /etc/supervisor/conf.d/supervisord.conf && \
   echo 'autorestart = false' >> /etc/supervisor/conf.d/supervisord.conf
 

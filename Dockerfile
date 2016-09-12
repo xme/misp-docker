@@ -10,8 +10,8 @@
 # # git clone https://github.com/xme/misp-docker
 # # docker build -t <tag> --build-arg MYSQL_ROOT_PASSWORD=<mysql_root_pw> .
 
-# We are based on Ubuntu:latest
-FROM ubuntu
+# We are based on Ubuntu:trusty
+FROM ubuntu:trusty
 MAINTAINER Xavier Mertens <xavier@rootshell.be>
 
 # Set environment variables

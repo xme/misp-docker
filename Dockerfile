@@ -47,7 +47,8 @@ RUN echo "mysql-server mysql-server/root_password_again password $MYSQL_ROOT_PAS
 # Install packages
 RUN \ 
   apt-get install -y libjpeg8-dev apache2 curl git less libapache2-mod-php5 make mysql-client mysql-server php5-gd \
-                     php5-mysql php5-dev php-pear postfix redis-server sudo tree vim zip openssl gnupg gnupg-agent && \
+                     php5-mysql php5-dev php-pear postfix redis-server sudo tree vim zip openssl gnupg gnupg-agent  \
+                     whois && \
   apt-get clean
 
 # -----------
@@ -189,7 +190,8 @@ RUN \
   apt-get install -y python3 python3-pip && \
   git clone https://github.com/MISP/misp-modules.git && \
   cd misp-modules && \
-  pip3 install -r REQUIREMENTS
+  pip3 install --upgrade -r REQUIREMENTS && \
+  pip3 install --upgrade .
 
 # -----------------
 # Supervisord Setup
@@ -233,8 +235,8 @@ RUN \
 RUN \
   echo '' >> /etc/supervisor/conf.d/supervisord.conf && \
   echo '[program:misp-modules]' >> /etc/supervisor/conf.d/supervisord.conf && \
-  echo 'command=/bin/bash -c "cd /opt/misp-modules/bin && /usr/bin/python3 misp-modules.py"' >> /etc/supervisor/conf.d/supervisord.conf && \
-  echo 'user = root' >> /etc/supervisor/conf.d/supervisord.conf && \
+  echo 'command=/bin/bash -c "/usr/local/bin/misp-modules -s"' >> /etc/supervisor/conf.d/supervisord.conf && \
+  echo 'user = www-data' >> /etc/supervisor/conf.d/supervisord.conf && \
   echo 'startsecs = 0' >> /etc/supervisor/conf.d/supervisord.conf && \
   echo 'autorestart = false' >> /etc/supervisor/conf.d/supervisord.conf
 

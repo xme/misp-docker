@@ -10,8 +10,8 @@
 # # git clone https://github.com/xme/misp-docker
 # # docker build -t <tag> --build-arg MYSQL_ROOT_PASSWORD=<mysql_root_pw> .
 
-# We are based on Ubuntu:latest
-FROM ubuntu
+# We are based on Ubuntu:trusty
+FROM ubuntu:trusty
 MAINTAINER Xavier Mertens <xavier@rootshell.be>
 
 # Set environment variables
@@ -46,7 +46,7 @@ RUN echo "mysql-server mysql-server/root_password_again password $MYSQL_ROOT_PAS
 
 # Install packages
 RUN \ 
-  apt-get install -y apache2 curl git less libapache2-mod-php5 make mysql-client mysql-server php5-gd \
+  apt-get install -y libjpeg8-dev apache2 curl git less libapache2-mod-php5 make mysql-client mysql-server php5-gd \
                      php5-mysql php5-dev php-pear postfix redis-server sudo tree vim zip openssl gnupg gnupg-agent && \
   apt-get clean
 
@@ -106,7 +106,7 @@ RUN \
 
 # CakeResque normally uses phpredis to connect to redis, but it has a (buggy) fallback connector through Redisent. 
 # It is highly advised to install phpredis
-RUN pecl install redis
+RUN pecl install redis-2.2.8
 RUN apt-get install -y php5-redis
 
 # After installing it, enable it in your php.ini file

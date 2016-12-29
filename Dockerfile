@@ -46,7 +46,7 @@ RUN echo "mysql-server mysql-server/root_password_again password $MYSQL_ROOT_PAS
 
 # Install packages
 RUN \ 
-  apt-get install -y libjpeg8-dev apache2 curl git less libapache2-mod-php5 make mysql-client mysql-server php5-gd \
+  apt-get install -y libjpeg8-dev apache2 curl git less libapache2-mod-php5 make mysql-common-5.6 mysql-client-5.6 mysql-server-5.6 php5-gd \
                      php5-mysql php5-dev php-pear postfix redis-server sudo tree vim zip openssl gnupg gnupg-agent  \
                      whois && \
   apt-get clean

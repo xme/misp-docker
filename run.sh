@@ -29,7 +29,7 @@ if [ -r /.firstboot.tmp ]; then
 	service mysql start >/dev/null 2>&1
 	sleep 5
 
-	ret=`echo 'SHOW DATABASES;' | mysql -u root --password="$MYSQL_ROOT_PASSWORD" -h 127.0.0.1 -P 3306 # 2>&1`
+	ret=`echo 'SHOW DATABASES;' | mysql -u root # 2>&1`
 
 	if [ $? -eq 0 ]; then
 		echo "Connected to database successfully!"
@@ -48,12 +48,12 @@ create database misp;
 grant usage on *.* to misp identified by "$MYSQL_MISP_PASSWORD";
 grant all privileges on misp.* to misp;
 EOSQL
-			ret=`mysql -u root --password="$MYSQL_ROOT_PASSWORD" -h 127.0.0.1 -P 3306 2>&1 < /tmp/create_misp_database.sql`
+			ret=`mysql -u root  2>&1 < /tmp/create_misp_database.sql`
 			if [ $? -eq 0 ]; then
 				echo "Created database misp successfully!"
 
 				echo "Importing /var/www/MISP/INSTALL/MYSQL.sql ..."
-				ret=`mysql -u misp --password="$MYSQL_MISP_PASSWORD" misp -h 127.0.0.1 -P 3306 2>&1 < /var/www/MISP/INSTALL/MYSQL.sql`
+				ret=`mysql -u misp --password="$MYSQL_MISP_PASSWORD" misp 2>&1 < /var/www/MISP/INSTALL/MYSQL.sql`
 				if [ $? -eq 0 ]; then
 					echo "Imported /var/www/MISP/INSTALL/MYSQL.sql successfully"
 				else
@@ -95,10 +95,10 @@ EOSQL
 
 	# Fix php.ini with recommended settings
 	echo "Optimizing php.ini (based on MISP recommendations) ..."
-	sed -i "s/max_execution_time = 30/max_execution_time = 300/" /etc/php5/apache2/php.ini
-	sed -i "s/memory_limit = 128M/memory_limit = 512M/" /etc/php5/apache2/php.ini
-	sed -i "s/upload_max_filesize = 2M/upload_max_filesize = 50M/" /etc/php5/apache2/php.ini
-	sed -i "s/post_max_size = 8M/post_max_size = 50M/" /etc/php5/apache2/php.ini
+	sed -i "s/max_execution_time = 30/max_execution_time = 300/" /etc/php/7.0/apache2/php.ini
+	sed -i "s/memory_limit = 128M/memory_limit = 512M/" /etc/php/7.0/apache2/php.ini
+	sed -i "s/upload_max_filesize = 2M/upload_max_filesize = 50M/" /etc/php/7.0/apache2/php.ini
+	sed -i "s/post_max_size = 8M/post_max_size = 50M/" /etc/php/7.0/apache2/php.ini
 
 	# Generate the admin user PGP key
 	if [ -z "$MISP_ADMIN_EMAIL" -o -z "$MISP_ADMIN_PASSPHRASE" ]; then

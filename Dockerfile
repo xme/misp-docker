@@ -46,7 +46,7 @@ RUN echo "mariadb-server-10.0 mysql-server/root_password_again password $MYSQL_R
 # Install packages
 RUN \ 
   apt-get install -y libjpeg8-dev apache2 curl git less libapache2-mod-php make mariadb-server mariadb-client  php-gd \
-                     php-mysql php-dev php-pear postfix redis-server sudo tree vim zip openssl gnupg gnupg-agent  \
+                     php-mysql php-dev php7.0-mbstring php-pear postfix redis-server sudo tree vim zip openssl gnupg gnupg-agent  \
                      whois && \
   apt-get clean
 

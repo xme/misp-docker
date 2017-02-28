@@ -11,8 +11,7 @@
 # # docker build -t <tag> --build-arg MYSQL_ROOT_PASSWORD=<mysql_root_pw> .
 
 # We are based on Ubuntu:trusty
-FROM ubuntu:trusty
-MAINTAINER Xavier Mertens <xavier@rootshell.be>
+FROM ubuntu:xenial
 
 # Set environment variables
 ENV DEBIAN_FRONTEND noninteractive
@@ -22,7 +21,7 @@ RUN echo "DEBUG"
 # Upgrade Ubuntu
 RUN \
   apt-get update && \
-  apt-get dist-upgrade -y && \
+#  apt-get dist-upgrade -y && \
   apt-get autoremove -y && \
   apt-get clean
 
@@ -39,15 +38,15 @@ RUN \
 ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Preconfigure setting for packages
-RUN echo "mysql-server mysql-server/root_password password $MYSQL_ROOT_PASSWORD" | debconf-set-selections
-RUN echo "mysql-server mysql-server/root_password_again password $MYSQL_ROOT_PASSWORD" | debconf-set-selections
+RUN echo "mariadb-server-10.0 mysql-server/root_password password $MYSQL_ROOT_PASSWORD" | debconf-set-selections
+RUN echo "mariadb-server-10.0 mysql-server/root_password_again password $MYSQL_ROOT_PASSWORD" | debconf-set-selections
 #RUN echo "postfix postfix/main_mailer_type string Local only" | debconf-set-selections 
 #RUN echo "postfix postfix/mailname string localhost.localdomain" | debconf-set-selections
 
 # Install packages
 RUN \ 
-  apt-get install -y libjpeg8-dev apache2 curl git less libapache2-mod-php5 make mysql-common-5.6 mysql-client-5.6 mysql-server-5.6 php5-gd \
-                     php5-mysql php5-dev php-pear postfix redis-server sudo tree vim zip openssl gnupg gnupg-agent  \
+  apt-get install -y libjpeg8-dev apache2 curl git less libapache2-mod-php make mariadb-server mariadb-client  php-gd \
+                     php-mysql php-dev php-pear postfix redis-server sudo tree vim zip openssl gnupg gnupg-agent  \
                      whois && \
   apt-get clean
 
@@ -107,12 +106,12 @@ RUN \
 
 # CakeResque normally uses phpredis to connect to redis, but it has a (buggy) fallback connector through Redisent. 
 # It is highly advised to install phpredis
-RUN pecl install redis-2.2.8
-RUN apt-get install -y php5-redis
+RUN pecl install redis-3.1.1
+RUN apt-get install -y php-redis
 
 # After installing it, enable it in your php.ini file
 # add the following line
-RUN echo "extension=redis.so" >> /etc/php5/apache2/php.ini
+RUN echo "extension=redis.so" >> /etc/php/7.0/apache2/php.ini
 
 # To use the scheduler worker for scheduled tasks, do the following
 RUN cp -fa /var/www/MISP/INSTALL/setup/config.php /var/www/MISP/app/Plugin/CakeResque/Config/config.php

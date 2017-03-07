@@ -10,8 +10,8 @@
 # # git clone https://github.com/xme/misp-docker
 # # docker build -t <tag> --build-arg MYSQL_ROOT_PASSWORD=<mysql_root_pw> .
 
-# We are based on Ubuntu:trusty
-FROM ubuntu:trusty
+# We are based on Ubuntu:16.04
+FROM ubuntu:16.04
 MAINTAINER Xavier Mertens <xavier@rootshell.be>
 
 # Set environment variables
@@ -46,8 +46,8 @@ RUN echo "mysql-server mysql-server/root_password_again password $MYSQL_ROOT_PAS
 
 # Install packages
 RUN \ 
-  apt-get install -y libjpeg8-dev apache2 curl git less libapache2-mod-php5 make mysql-common-5.6 mysql-client-5.6 mysql-server-5.6 php5-gd \
-                     php5-mysql php5-dev php-pear postfix redis-server sudo tree vim zip openssl gnupg gnupg-agent  \
+  apt-get install -y libjpeg8-dev apache2 curl git less libapache2-mod-php make mysql-common mysql-client mysql-server php-gd \
+                     php-mysql php-dev php-pear php-redis postfix redis-server sudo tree vim zip openssl gnupg gnupg-agent  \
                      whois && \
   apt-get clean
 
@@ -104,15 +104,6 @@ RUN \
   php composer.phar require kamisama/cake-resque:4.1.2 && \
   php composer.phar config vendor-dir Vendor && \
   php composer.phar install
-
-# CakeResque normally uses phpredis to connect to redis, but it has a (buggy) fallback connector through Redisent. 
-# It is highly advised to install phpredis
-RUN pecl install redis-2.2.8
-RUN apt-get install -y php5-redis
-
-# After installing it, enable it in your php.ini file
-# add the following line
-RUN echo "extension=redis.so" >> /etc/php5/apache2/php.ini
 
 # To use the scheduler worker for scheduled tasks, do the following
 RUN cp -fa /var/www/MISP/INSTALL/setup/config.php /var/www/MISP/app/Plugin/CakeResque/Config/config.php

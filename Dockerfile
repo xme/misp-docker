@@ -122,6 +122,8 @@ WORKDIR /opt
 RUN apt-get install -y python3 python3-pip libjpeg-dev
 RUN git clone https://github.com/MISP/misp-modules.git
 WORKDIR /opt/misp-modules
+RUN pip3 install --upgrade --ignore-installed urllib3
+RUN pip3 install --upgrade --ignore-installed requests
 RUN pip3 install -I -r REQUIREMENTS
 RUN pip3 install -I .
 RUN echo "sudo -u www-data misp-modules -s &" >>/etc/rc.local

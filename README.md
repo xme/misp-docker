@@ -23,5 +23,14 @@ The build is based on Ubuntu and will install all the required components. The f
 # docker build -t misp .
 ```
 
+# Configuring MySQL container
+
+```
+(in mysql console from database root user)
+> USE mysql;
+> UPDATE user SET host='%' WHERE host='localhost';
+> FLUSH PRIVILEGES;
+```
+
 # Running the image
 Use the docker-compose file provided as example.

@@ -8,7 +8,7 @@
 # 
 
 # We are based on Ubuntu:latest
-FROM ubuntu:16.04
+FROM ubuntu:xenial
 MAINTAINER Xavier Mertens <xavier@rootshell.be>
 
 # Install core components
@@ -27,14 +27,15 @@ RUN apt-get install -y apache2 apache2-doc apache2-utils
 RUN a2dismod status
 RUN a2dissite 000-default
 
-# PHP 7.1
-RUN apt-get install -y libapache2-mod-php php7.1 php7.1-cli php-crypt-gpg php7.1-dev php7.1-json php7.1-mysql php7.1-opcache php7.1-readline php7.1-redis php7.1-xml
+# PHP 7.2
+RUN apt-get install -y libapache2-mod-php php7.2 php7.2-cli php-crypt-gpg php7.2-dev php7.2-json php7.2-mysql php7.2-opcache php7.2-readline php7.2-redis php7.2-xml
+RUN apt-get install -y php-pear pkg-config libbson-1.0 libmongoc-1.0-0 php-xml php-dev
 
 # Fix php.ini with recommended settings
-RUN sed -i "s/max_execution_time = 30/max_execution_time = 300/" /etc/php/7.1/apache2/php.ini
-RUN sed -i "s/memory_limit = 128M/memory_limit = 512M/" /etc/php/7.1/apache2/php.ini
-RUN sed -i "s/upload_max_filesize = 2M/upload_max_filesize = 50M/" /etc/php/7.1/apache2/php.ini
-RUN sed -i "s/post_max_size = 8M/post_max_size = 50M/" /etc/php/7.1/apache2/php.ini
+RUN sed -i "s/max_execution_time = 30/max_execution_time = 300/" /etc/php/7.2/apache2/php.ini
+RUN sed -i "s/memory_limit = 128M/memory_limit = 512M/" /etc/php/7.2/apache2/php.ini
+RUN sed -i "s/upload_max_filesize = 2M/upload_max_filesize = 50M/" /etc/php/7.2/apache2/php.ini
+RUN sed -i "s/post_max_size = 8M/post_max_size = 50M/" /etc/php/7.2/apache2/php.ini
 
 RUN apt-get install -y python-dev python-pip libxml2-dev libxslt1-dev zlib1g-dev python-setuptools
 RUN apt-get install -y cron logrotate supervisor syslog-ng-core
@@ -69,7 +70,7 @@ RUN git submodule init
 RUN git submodule update
 WORKDIR /var/www/MISP/app
 RUN php composer.phar config vendor-dir Vendor
-RUN php composer.phar install
+RUN php composer.phar install --ignore-platform-reqs
 USER root
 RUN phpenmod redis
 USER www-data
@@ -94,13 +95,14 @@ RUN sed -i 's/^\(daemonize\s*\)yes\s*$/\1no/g' /etc/redis/redis.conf
 
 # Install PEAR packages
 RUN pear install Crypt_GPG >>/tmp/install.log
-RUN pear install Net_GeoIP
+RUN pear install Net_GeoIP >>/tmp/install.log
 
 # Apache Setup
 RUN cp /var/www/MISP/INSTALL/apache.misp.ubuntu /etc/apache2/sites-available/misp.conf
 RUN a2dissite 000-default
 RUN a2ensite misp
 RUN a2enmod rewrite
+RUN a2enmod headers
 
 # MISP base configuration
 RUN sudo -u www-data cp -a /var/www/MISP/app/Config/bootstrap.default.php /var/www/MISP/app/Config/bootstrap.php

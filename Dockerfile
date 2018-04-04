@@ -5,6 +5,7 @@
 #
 # 2016/03/03 - First release
 # 2017/06/02 - Updated
+# 2018/04/04 - Added objects templates
 # 
 
 # We are based on Ubuntu:latest
@@ -118,6 +119,14 @@ RUN sed -i -E "s/'salt'\s=>\s'(\S+)'/'salt' => '`openssl rand -base64 32|tr "/" 
 # Enable workers at boot time
 RUN chmod a+x /var/www/MISP/app/Console/worker/start.sh
 RUN echo "sudo -u www-data bash /var/www/MISP/app/Console/worker/start.sh" >>/etc/rc.local
+
+# Install templates & stuff
+WORKDIR /var/www/MISP/app/files
+RUN git clone https://github.com/MISP/misp-objects.git
+RUN git clone https://github.com/MISP/misp-galaxy.git
+RUN git clone https://github.com/MISP/misp-warninglists.git ./warninglists
+RUN git clone https://github.com/MISP/misp-taxonomies.git ./taxonomies
+RUN chown -R www-data:www-data misp-objects misp-galaxy warninglists taxonomies
 
 # Install MISP Modules
 WORKDIR /opt
